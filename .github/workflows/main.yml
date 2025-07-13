@@ -1,48 +1,41 @@
 # Nome do nosso workflow
-name: Deploy de Site Estático para GitHub Pages
+name: Deploy do Site para GitHub Pages
 
 # Gatilho: rodar sempre que houver um push no branch main
 on:
   push:
     branches: ["main"]
 
-# Permissões necessárias para o job de deploy
+# Permissões necessárias para o GitHub Actions poder fazer o deploy.
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Define os jobs que serão executados
+# Define um único job chamado 'deploy'
 jobs:
-  # Primeiro job: build e teste (simulado)
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
-      - name: Simulação de Teste
-        run: |
-          echo "Iniciando testes..."
-          # Aqui rodariam seus testes reais (ex: npm test)
-          echo "Testes passaram com sucesso!"
-
-  # Segundo job: deploy, que só roda se o job 'build' for bem-sucedido
   deploy:
-    needs: build # Dependência: só roda depois do job 'build'
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
-      - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v3
-      - name: Fazer o upload do artefato do site
-        # Aponta para a raiz do projeto, onde está nosso index.html
-        uses: actions/upload-pages-artifact@v2
+      # 1. Baixa o código do seu repositório
+      - name: Checkout
+        uses: actions/checkout@v4 # ATUALIZADO
+
+      # 2. Configura o ambiente do GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5 # ATUALIZADO
+
+      # 3. Transforma sua pasta de arquivos em um "artefato" para deploy
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3 # ATUALIZADO
         with:
-          path: '.' 
-      - name: Fazer o Deploy no GitHub Pages
+          # Faz o upload da raiz do projeto, onde está seu index.html
+          path: '.'
+
+      # 4. Faz o deploy do artefato no GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4 # ATUALIZADO
